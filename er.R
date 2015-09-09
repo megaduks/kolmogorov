@@ -4,13 +4,15 @@
 library(igraph)
 library(ggplot2)
 
-# generate a set of random graphs
+# generate a set of random graphs for a range of edge probabilities
 
 num.graphs <- 1000
 num.nodes <- 200
-edge.probability <- 0.01
+edge.probability <- seq(0.001, 0.05, by = 0.001)
 
-graphs <- lapply(1:num.graphs, sample_gnp, n = num.nodes, p = edge.probability)
+for (k in 1:length(edge.probability)) {
+  
+graphs <- lapply(1:num.graphs, sample_gnp, n = num.nodes, p = edge.probability[k])
 
 # select random edge weights from a uniform distribution
 
@@ -37,19 +39,27 @@ for (i in 1:num.graphs) {
 # compute the mean entropy for a given class of random graphs
 
 mean.entropies <- unlist(lapply(entropy.distributions, mean))
-mu <- mean(mean.entropies)
-sd <- sd(mean.entropies)
+mu[k] <- mean(mean.entropies)
+sd[k] <- sd(mean.entropies)
 
 # draw the histogram of mean entropies
 
-df <- data.frame(me = mean.entropies)
-plot <- ggplot(df, aes(x = me)) + 
-  geom_histogram(binwidth = 0.002, colour = "black", fill = "white") + 
-  geom_density() + 
-  geom_vline(aes(xintercept = mu), colour = "red")
+# df <- data.frame(me = mean.entropies)
+# plot <- ggplot(df, aes(x = me)) + 
+#   geom_histogram(binwidth = 0.002, colour = "black", fill = "white") + 
+#   geom_density() + 
+#   geom_vline(aes(xintercept = mu), colour = "red")
   
-plot
-
 # save the histogram
+# ggsave(filename = "er.entropy.png")
 
-ggsave(filename = "er.entropy.png")
+}
+
+# plot the resulting distribution of mean entropies and their standard deviations
+
+df <- data.frame(p = edge.probability, mu, sd)
+plot <- ggplot(df, aes(x = p, y = value, color = variable)) +
+  geom_line(aes(y = mu, color = "mean entropy")) +
+  geom_line(aes(y = sd, color = "standard deviation")) +
+  xlab("edge probability")
+ggsave(filename = "er.entropy.png", plot = plot)
