@@ -6,9 +6,12 @@ library(ggplot2)
 
 # generate a set of random graphs for a range of edge probabilities
 
-num.graphs <- 1000
+num.graphs <- 10
 num.nodes <- 200
 edge.probability <- seq(0.001, 0.05, by = 0.001)
+
+mu <- numeric(0)
+sd <- numeric(0)
 
 for (k in 1:length(edge.probability)) {
   
