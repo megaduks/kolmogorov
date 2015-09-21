@@ -1,0 +1,90 @@
+---
+title: "Grafy i Złożoność Kołmogorowa"
+author: "Mikolaj Morzy"
+date: "September 19, 2015"
+output: pdf_document
+---
+
+Pakiet ``acss`` pozwala na wyznaczenie Złożoności Kołmogorowa (ZK), ale jedynie dla bardzo krótkich łańcuchów znaków (do 10-12 znaków w zależności od rozmiaru alfabetu). Dla przypomnienia, ZK(S) dla łańcucha znaków S to długość najkrótszego programu maszyny Turinga który posługując się alfabetem o zadanym rozmiarze potrafi napisać łańcuch S. Generalnie rzecz biorąc, ZS jest bardzo dobrą teoretyczną miarą stopnia losowości łańcucha znaków.
+
+Istnieje duża różnica między entropią H(S) łańcucha znaków S i jego złożnością ZK(S). Entropia bierze pod uwagę jedynie rozkład częstości znaków alfabetu, a nie ich wzajemne ułożenie.
+
+```{r}
+library(acss)
+
+S1 <- '0010111001'
+S2 <- '0000011111'
+
+entropy(S1)
+entropy(S2)
+
+acss(S1, alphabet = 2)
+acss(S2, alphabet = 2)
+```
+
+Jak widać, oba łańcuchy znaków mają identyczną entropię i inną Złożoność Kołmogorowa. 
+
+Pomysł wykorzystania Złożoności Kołmogorowa do porównywania grafów jest następujący:
+
+1. dla zadanego grafu wyznaczyć jego macierz sąsiedztwa wierzchołków i posortować ją wierszami
+2. posortowaną macierz sąsiedztwa zamienić na jeden długi łańcuch znaków
+3. podzielić łańcuch znaków na fragmenty długości 10 znaków (dla których można policzyć ZK)
+4. dla każdego fragmentu wyznaczyć jego ZK
+5. uśrednić uzyskane ZK wszystkich fragmentów w celu znalezienia Złożoności Kołmogorowa całego łańcucha znaków
+
+Wartość wyznaczoną w punkcie 6 można uważać za oszacowanie złożoności całego grafu. Poniżej kod realizujący ten plan.
+
+```{r}
+library(igraph)
+
+# create a random graph according to the Erdos-Renyi model
+
+graph <- sample_gnp(10, 0.5)
+plot(graph)
+```
+
+Wyznaczenie macierzy sąsiedztwa, jej sortowanie i zamiana na łańcuch, dzielenie łańcucha na fragmenty.
+
+```{r}
+
+# transform the graph into the adjacency matrix
+
+adjacency.matrix <- as_adjacency_matrix(graph, type = 'lower')
+adjacency.matrix
+
+# sort the matrix row-wise
+
+sorted.adjacency.matrix <- adjacency.matrix[ do.call(order, lapply(1:ncol(adjacency.matrix), function(x) adjacency.matrix[, x])), ]
+sorted.adjacency.matrix
+
+# change the matrix into a string
+
+adjacency.string <- paste(sorted.adjacency.matrix, collapse = '')
+adjacency.string
+
+# chop string into equal length chunks
+# acss can compute Kolmogorov's Complexity only for short strings
+
+adjacency.string.chunks <- substring(adjacency.string, seq(1, nchar(adjacency.string), 10), seq(10, nchar(adjacency.string), 10))
+adjacency.string.chunks
+```
+
+Wyznaczenie ZK dla poszczególnych fragmentów
+
+```{r}
+
+# compute Kolmogorov's Complexity for all the chunks from the adjacency matrix
+
+kolmogorov.complexities <- lapply(adjacency.string.chunks, acss, alphabet = 2)
+
+# plot Kolmogorov's Complexities of all the chunks
+
+barplot(unlist(kolmogorov.complexities))
+
+# compute the mean Kolmogorov's Complexity over all chunks
+
+mean.kolmogorov.complexity <- lapply(unlist(kolmogorov.complexities)[1], mean)
+mean.kolmogorov.complexity
+```
+
+Zatem, dla zadanego grafu ``graph`` uzyskujemy jego złożoność w wysokości `r mean.kolmogorov.complexity`.
