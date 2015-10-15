@@ -3,11 +3,12 @@
 
 library(igraph)
 library(ggplot2)
+library(acss)
 
 # generate a set of random graphs for a range of edge probabilities
 
 num.graphs <- 50
-num.nodes <- 200
+num.nodes <- 50
 edge.probability <- seq(0.001, 0.1, by = 0.001)
 
 mu <- numeric(0)
@@ -52,16 +53,16 @@ mean.betweenness.entropy <- mean(unlist(betweenness.entropy))
 
 # remove the "NaN" and "Inf" points from entropy distributions
 
-for (i in 1:num.graphs) {
-  entropy.distributions[[i]] <- entropy.distributions[[i]][!is.nan(entropy.distributions[[i]])]
-  entropy.distributions[[i]] <- entropy.distributions[[i]][!is.infinite(entropy.distributions[[i]])]
-}
+#for (i in 1:num.graphs) {
+#  entropy.distributions[[i]] <- entropy.distributions[[i]][!is.nan(entropy.distributions[[i]])]
+#  entropy.distributions[[i]] <- entropy.distributions[[i]][!is.infinite(entropy.distributions[[i]])]
+#}
 
 # compute the mean entropy for a given class of random graphs
 
-mean.entropies <- unlist(lapply(entropy.distributions, mean))
-mu[k] <- mean(mean.entropies)
-sd[k] <- sd(mean.entropies)
+#mean.entropies <- unlist(lapply(entropy.distributions, mean))
+#mu[k] <- mean(mean.entropies)
+#sd[k] <- sd(mean.entropies)
 
 centrality.entropies[k,] <- c(edge.probability[k], mean.degree.entropy, mean.betweenness.entropy)
 

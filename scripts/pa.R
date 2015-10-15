@@ -3,12 +3,16 @@
 
 library(igraph)
 library(ggplot2)
+library(acss)
 
 # generate a set of random graphs for a range of edge probabilities
 
 num.graphs <- 50
-num.nodes <- 200
+num.nodes <- 1000
 alpha.coefficients <- seq(1.0, 3.0, length.out = 100)
+
+mu <- numeric(0)
+sd <- numeric(0)
 
 centrality.entropies <- data.frame(alpha.coefficient = numeric(0), degree.entropy = numeric(0), betweenness.entropy = numeric(0))
 
@@ -91,4 +95,4 @@ p <- ggplot(centrality.entropies, aes(x = alpha.coefficient, y = entropy, color 
   geom_line(aes(y = degree.entropy, color = "degree entropy")) +
   geom_line(aes(y = betweenness.entropy, color = "betweenness entropy")) +
   xlab("alpha coefficient")
-ggsave(filename = "figures/pa.centrality.entropy.png")
+ggsave(filename = "figures/pa.centrality.entropy.1000.png")
