@@ -10,17 +10,18 @@ library(acss)
 # universal graph parameters
 
 num.graphs <- 50
-num.nodes  <- 50
+num.nodes  <- 250
 
 # graph parameters specific to a given network class
 
-edge.probability <- seq(0.01, 0.1, length.out = 10) 
-rewiring.probability <- seq(0.001, 0.05, length.out = 10)
-alpha.coefficients <- seq(1.0, 3.0, length.out = 10)
+edge.probability     <- seq(0.01, 0.1, length.out = 100) 
+rewiring.probability <- seq(0.001, 0.05, length.out = 100)
+alpha.coefficients   <- seq(1.0, 3.0, length.out = 100)
+forward.burning      <- seq(0.01, 1, length.out = 100)
 
-graph.class.parameter <- edge.probability
-graph.class.name <- "random.network"              # "small.world" "preferential.attachment"
-graph.class.parameter.name <- "edge probability"  # "rewiring probability" "alpha coefficient"
+graph.class.parameter <- forward.burning
+graph.class.name <- "forest.fire"                     # "small.world" "preferential.attachment" "forest.fire"
+graph.class.parameter.name <- "forward burning"       # "rewiring probability" "alpha coefficient" "forward burning"
 
 # variables to store means and standard deviations of all variables
 
@@ -55,8 +56,11 @@ df <- data.frame(graph.class.parameter=NA,
 # create num.graphs realizations of the random graph model given a particular value of the edge creation probability
 for (k in 1:length(graph.class.parameter)) {
   
-  graphs <- lapply(1:num.graphs, sample_gnp, n = num.nodes, p = graph.class.parameter[k])
-
+  #graphs <- lapply(1:num.graphs, sample_gnp, n = num.nodes, p = graph.class.parameter[k])
+  #graphs <- lapply(1:num.graphs, sample_smallworld, dim = 1, size = num.nodes, nei = 4, p = graph.class.parameter[k])
+  #graphs <- lapply(1:num.graphs, sample_pa, n = num.nodes, power = graph.class.parameter[k])
+  graphs <- lapply(1:num.graphs, sample_forestfire, nodes = num.nodes, fw.prob = graph.class.parameter[k], bw.factor = 0.9, directed = FALSE)
+  
   # set uniform weights of edges
   for (i in 1:num.graphs) 
     E(graphs[[i]])$weight <- runif(ecount(graphs[[i]]))
