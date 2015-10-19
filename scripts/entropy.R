@@ -10,18 +10,18 @@ library(acss)
 # universal graph parameters
 
 num.graphs <- 50
-num.nodes  <- 250
+num.nodes  <- 1000
 
 # graph parameters specific to a given network class
 
 edge.probability     <- seq(0.01, 0.1, length.out = 100) 
 rewiring.probability <- seq(0.001, 0.05, length.out = 100)
 alpha.coefficients   <- seq(1.0, 3.0, length.out = 100)
-forward.burning      <- seq(0.01, 1, length.out = 100)
+forward.burning      <- seq(0.01, 0.3, length.out = 100)
 
 graph.class.parameter <- forward.burning
-graph.class.name <- "forest.fire"                     # "small.world" "preferential.attachment" "forest.fire"
-graph.class.parameter.name <- "forward burning"       # "rewiring probability" "alpha coefficient" "forward burning"
+graph.class.name <- "forest.fire"                      # "random.graph", "small.world" "preferential.attachment" "forest.fire"
+graph.class.parameter.name <- "forward burning"        # "rewiring probability" "alpha coefficient" "forward burning"
 
 # variables to store means and standard deviations of all variables
 
@@ -123,9 +123,14 @@ for (k in 1:length(graph.class.parameter)) {
              sd.vertex.entropy, sd.degree.entropy, sd.betweenness.entropy, sd.clustering.coefficient.entropy, 
              mean.degree, mean.betweenness, mean.clustering.coefficient, 
              sd.degree, sd.betweenness, sd.clustering.coefficient)
+  
+  # print out message on the console
+  print(paste('iteration:', k))
+  
 }
 
   df$graph.class.name <- graph.class.name
+  df$num.nodes <- num.nodes
 
 # plot the entropies of centrality measures and centrality measures
 
